@@ -1,0 +1,75 @@
+:root {
+  --vino: #8B0000;
+  --vino-oscuro: #4B0E0E;
+  --negro: #111111;
+  --gris-oscuro: #2E2E2E;
+  --gris-medio: #666666;
+  --gris-claro: #E5E5E5;
+  --blanco: #FFFFFF;
+}
+
+/* --- HEADER --- */
+.header {
+  background: var(--vino);
+  color: var(--blanco);
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 600;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+.header h1 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+/* --- NAVBAR (CORREGIDO) --- */
+/* Eliminamos los estilos manuales de .navbar ul y .navbar a 
+   porque Bootstrap ya maneja esto mejor (navbar-nav, nav-link).
+   Solo conservamos colores y detalles específicos.
+*/
+
+.navbar-custom {
+  background-color: var(--vino) !important;
+}
+
+/* Ajustes para los enlaces dentro del navbar de Bootstrap */
+.navbar-dark .navbar-nav .nav-link {
+  color: rgba(255,255,255,0.9);
+  transition: color 0.3s;
+}
+.navbar-dark .navbar-nav .nav-link:hover {
+  color: #ffc107; /* Amarillo al pasar el mouse */
+}
+
+/* Asegura que los dropdowns no se vean afectados por estilos globales */
+.dropdown-menu {
+    border: none;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+/* --- FOOTER --- */
+.footer {
+  background: var(--gris-oscuro);
+  color: var(--gris-claro);
+  text-align: center;
+  padding: 1.5rem;
+  margin-top: auto; /* Empuja el footer al fondo si usas flex column en body */
+  font-size: 0.9rem;
+}
+.footer a {
+  color: var(--vino);
+  text-decoration: none;
+  margin: 0 0.5rem;
+}
+.footer a:hover {
+  color: var(--blanco);
+}
+
+/* --- UTILIDADES EXTRAS --- */
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}

@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Atender | Asignaciones</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link th:href="@{/css/estilos.css}" rel="stylesheet">
+  <link th:href="@{/css/layout.css}" rel="stylesheet">
+</head>
+<body>
+<div th:replace="fragments/headher :: headher"></div>
+<div th:replace="fragments/navibar :: navibar"></div>
+
+<div class="container my-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h3 class="mb-0">Asignaciones de atención</h3>
+    <a th:href="@{/atender/crear}" class="btn btn-success btn-sm">+ Nueva asignación</a>
+  </div>
+
+  <div th:if="${ok}" class="alert alert-success" th:text="${ok}"></div>
+  <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+
+  <div class="table-responsive card soft">
+    <table class="table table-striped align-middle mb-0">
+      <thead>
+      <tr>
+        <th>#</th>
+        <th>Fecha</th>
+        <th>Empleado</th>
+        <th>Tipo</th>
+        <th>Referencia</th>
+        <th>Cliente</th>
+        <th>Observación</th>
+        <th class="text-end">Acciones</th>
+      </tr>
+      </thead>
+
+      <tbody>
+      <tr th:each="a : ${asignaciones}"
+          th:with="
+            esPedido=${a.pedido != null},
+            esReserva=${a.reserva != null},
+            clienteNombre=${
+              a.pedido != null && a.pedido.cliente != null ? (a.pedido.cliente.nombre ?: '-') :
+              (a.reserva != null && a.reserva.cliente != null ? (a.reserva.cliente.nombre ?: '-') : '-')
+            }">
+        <td th:text="${a.id}">1</td>
+        <td th:text="${a.fechaAsignacion}">2025-10-13</td>
+        <td th:text="${a.empleado != null ? a.empleado.nombreCompleto : '—'}">Empleado</td>
+
+        <!-- Tipo: Pedido / Reserva / Conflicto -->
+        <td>
+          <span th:if="${esPedido and !esReserva}" class="badge bg-info text-dark">Pedido</span>
+          <span th:if="${esReserva and !esPedido}" class="badge bg-warning text-dark">Reserva</span>
+          <span th:if="${esReserva and esPedido}" class="badge bg-danger">Conflicto</span>
+          <span th:if="${!esPedido and !esReserva}" class="badge bg-secondary">—</span>
+        </td>
+
+        <!-- Referencia enriquecida -->
+        <td>
+          <!-- Pedido -->
+          <span th:if="${esPedido}">
+            <a th:href="@{/pedidos/ver/{id}(id=${a.pedido.id})}">
+              #<span th:text="${a.pedido.id}">0</span>
+            </a>
+            <span class="text-muted"
+                  th:text="${' — $ ' + #numbers.formatDecimal(a.pedido.total ?: 0.0,1,'POINT',2,'POINT')}">
+              — $0.00
+            </span>
+          </span>
+
+          <!-- Reserva -->
+          <span th:if="${esReserva}">
+            <a th:href="@{/reservas/ver/{id}(id=${a.reserva.id})}">
+              #<span th:text="${a.reserva.id}">0</span>
+            </a>
+            <span class="text-muted">
+              <span th:text="${a.reserva.fecha != null ? a.reserva.fecha : ''}">2025-01-01</span>
+              <span th:text="${a.reserva.hora  != null ? ' ' + a.reserva.hora : ''}"> 19:00</span>
+              <span th:if="${a.reserva.mesa != null}"
+                    th:text="${' — Mesa ' + a.reserva.mesa.id}"> — Mesa 1</span>
+            </span>
+          </span>
+
+          <!-- Vacío -->
+          <span th:if="${!esPedido and !esReserva}" class="text-muted">—</span>
+        </td>
+
+        <!-- Cliente con fallback -->
+        <td th:text="${clienteNombre}">Cliente</td>
+
+        <td th:text="${a.observacion}">Turno vespertino</td>
+        <td class="text-end">
+          <a th:href="@{/atender/eliminar/{id}(id=${a.id})}"
+             class="btn btn-danger btn-sm"
+             onclick="return confirm('¿Eliminar esta asignación?');">Eliminar</a>
+        </td>
+      </tr>
+
+      <tr th:if="${#lists.isEmpty(asignaciones)}">
+        <td colspan="8" class="text-center text-muted py-4">No hay asignaciones</td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div th:replace="fragments/fhooter :: fhooter"></div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+
+
+

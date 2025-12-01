@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Detalle del Producto</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link th:href="@{/css/estilos.css}" rel="stylesheet">
+  <link th:href="@{/css/layout.css}" rel="stylesheet">
+</head>
+<body class="py-5">
+
+  <div th:replace="~{fragments/headher :: headher}"></div>
+  <div th:replace="~{fragments/navibar :: navibar}"></div>
+
+  <div class="container my-4">
+    <div th:if="${producto} == null" class="alert alert-danger">
+      Producto no encontrado. <a th:href="@{/menu}" class="alert-link">Volver a productos</a>
+    </div>
+
+    <div th:if="${producto} != null" class="card soft p-4 p-md-5 bg-transparent">
+      <div class="row g-4 align-items-center">
+        
+        <div class="col-12 col-md-5 text-center">
+          <img th:if="${producto.fotoProducto != null and !producto.fotoProducto.isEmpty()}"
+               th:src="${producto.fotoProducto}"
+               class="img-fluid rounded shadow"
+               style="max-height: 400px; width: 100%; object-fit: cover;"
+               alt="Foto producto">
+
+          <img th:unless="${producto.fotoProducto != null and !producto.fotoProducto.isEmpty()}"
+               th:src="@{/imagen/sin_foto.png}"
+               class="img-fluid rounded shadow opacity-50"
+               style="max-height: 400px;"
+               alt="Imagen no disponible">
+        </div>
+        <div class="col-12 col-md-7">
+          <div class="d-flex align-items-center gap-3 mb-2">
+            <h2 class="mb-0" th:text="${producto.nombre}">Arrachera</h2>
+            <span class="badge badge-fire"
+                  th:text="${#strings.capitalize(producto.tipo.name().toLowerCase())}">Platillo</span>
+          </div>
+
+          <p class="text-smoke" th:text="${producto.descripcion}">Descripción…</p>
+          <hr class="hr-fire my-3">
+
+          <div class="list-group mb-3">
+            <div class="list-group-item d-flex justify-content-between align-items-center bg-transparent text-white border-secondary">
+              <span class="text-smoke">Precio</span>
+              <strong class="price" th:text="${'$ ' + #numbers.formatDecimal(producto.precio,1,'POINT',2,'POINT')}">$0.00</strong>
+            </div>
+          </div>
+
+          <div class="d-flex gap-2">
+            <a th:href="@{/menu}" class="btn btn-outline-secondary">← Volver</a>
+            <a th:href="@{/admin/productos/editar/{id}(id=${producto.id})}" class="btn btn-warning">Editar</a>
+            <a th:href="@{/admin/productos/eliminar/{id}(id=${producto.id})}"
+               class="btn btn-danger"
+               onclick="return confirm('¿Seguro que deseas eliminar este producto?');">
+               Eliminar
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div th:replace="~{fragments/fhooter :: fhooter}"></div>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+
+

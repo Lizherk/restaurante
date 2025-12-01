@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<!-- 
+  CRÍTICO: Asegúrate de que 'xmlns:sec' esté presente 
+  para que sec:authorize funcione.
+-->
+<html xmlns:th="http://www.thymeleaf.org" 
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security" 
+      lang="es">
+<head>
+  <meta charset="UTF-8"><title>Detalle de reserva</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link th:href="@{/css/estilos.css}" rel="stylesheet">
+  <link th:href="@{/css/layout.css}" rel="stylesheet">
+</head>
+<body>
+  <div th:replace="fragments/headher :: headher"></div>
+  <div th:replace="fragments/navibar :: navibar"></div>
+
+  <div class="container my-4" th:with="r=${reserva}">
+    <div th:if="${ok}" class="alert alert-success" th:text="${ok}"></div>
+    <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+
+    <div class="card soft mb-3 shadow-sm">
+      <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Reserva #<span th:text="${r.id}">1</span></h5>
+        
+        <!-- 
+          🚨 CORRECCIÓN APLICADA AQUÍ:
+          Los botones de Editar/Eliminar solo son visibles para ADMIN y CAJERO.
+          El CLIENTE solo verá "Volver".
+        -->
+        <div class="d-flex gap-2">
+          <a th:href="@{/reservas}" class="btn btn-light btn-sm">← Volver</a>
+          
+          <th:block sec:authorize="hasAnyRole('ADMIN', 'CAJERO')">
+            <a th:href="@{/reservas/editar/{id}(id=${r.id})}" class="btn btn-warning btn-sm">Editar</a>
+            <a th:href="@{/reservas/eliminar/{id}(id=${r.id})}" class="btn btn-danger btn-sm"
+               onclick="return confirm('¿Eliminar esta reserva?');">Eliminar</a>
+          </th:block>
+        </div>
+      </div>
+
+      <div class="card-body">
+        <div class="row g-3">
+          <div class="col-md-4">
+            <p class="mb-1 text-muted">Fecha</p>
+            <div class="fw-semibold" th:text="${r.fecha != null ? r.fecha : '-'}">2025-01-01</div>
+          </div>
+          <div class="col-md-4">
+            <p class="mb-1 text-muted">Hora</p>
+            <div class="fw-semibold" th:text="${r.hora != null ? r.hora : '-'}">18:00</div>
+          </div>
+          <div class="col-md-4">
+            <p class="mb-1 text-muted">Estatus</p>
+            <th:block th:with="
+                cls=${r.estatus == T(isa.restaurante.modelo.EstatusReserva).CONFIRMADA ? 'bg-success' :
+                     (r.estatus == T(isa.restaurante.modelo.EstatusReserva).CANCELADA ? 'bg-danger' : 'bg-warning text-dark')}
+            ">
+              <span class="badge" th:classappend="${cls}"
+                    th:text="${r.estatus != null ? r.estatus : 'PENDIENTE'}">PENDIENTE</span>
+            </th:block>
+          </div>
+
+          <div class="col-md-6">
+            <p class="mb-1 text-muted">Cliente</p>
+            <div class="fw-semibold"
+                 th:text="${r.cliente != null ? ((r.cliente.nombre ?: '') + ' ' + (r.cliente.apellido ?: '')) : '-'}">
+              Cliente
+            </div>
+          </div>
+
+          <div class="col-md-3">
+            <p class="mb-1 text-muted">Mesa</p>
+            <div class="fw-semibold">
+              Mesa <span th:text="${r.mesa != null ? r.mesa.id : 0}">0</span>
+              — <span th:text="${r.mesa != null ? (r.mesa.ubicacion ?: '-') : '-'}">-</span>
+            </div>
+            <div class="text-muted small" th:if="${r.mesa != null}">
+              Capacidad: <span th:text="${r.mesa.capacidad}">0</span> pax
+            </div>
+          </div>
+
+          <div class="col-md-3">
+            <p class="mb-1 text-muted">Atiende</p>
+            <div class="fw-semibold" th:text="${r.atendientesTexto}">—</div>
+          </div>
+        </div>
+        
+        <div class_A"mt-4" th:if="${asignaciones != null}">
+          <h6 class="mb-2">Empleados Asignados (Registro Atender)</h6>
+          <div class_A"table-responsive">
+            <table class="table table-sm align-middle">
+              <thead>
+              <tr>
+                <th># Asignación</th>
+                <th>Fecha Asignación</th>
+                <th>Empleado</th>
+                <th>Observación</th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr th:each="a : ${asignaciones}">
+                <td th:text="${a.id}">1</td>
+                <td th:text="${a.fechaAsignacion}">2025-10-10</td>
+                <td th:text="${a.empleado != null ? a.empleado.nombreCompleto : '—'}">—</td>
+                <td th:text="${a.observacion}">-</td>
+              </tr>
+              <tr th:if="${#lists.isEmpty(asignaciones)}">
+                <td colspan="4" class="text-muted text-center py-2">Sin asignaciones aún</td>
+              </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="mt-4">
+          <h6 class="mb-2">Pedidos Asociados</h6>
+          <div th:if="${#lists.isEmpty(r.pedidos)}" class="text-muted">
+            No hay pedidos asociados a esta reserva.
+          </div>
+          <div th:unless="${#lists.isEmpty(r.pedidos)}" class="table-responsive">
+            <table class="table table-sm align-middle">
+              <thead>
+                <tr>
+                  <th>ID Pedido</th>
+                  <th>Fecha</th>
+                  <th>Total</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr th:each="p : ${r.pedidos}">
+                  <td th:text="${p.id}">101</td>
+                  <td th:text="${p.fecha}">2025-10-10</td>
+                  <td th:text="${'$ ' + #numbers.formatDecimal(p.total, 1, 'POINT', 2, 'POINT')}">$0.00</td>
+                  <td>
+                    <a th:href="@{/pedidos/ver/{id}(id=${p.id})}" class="btn btn-sm btn-info text-white">Ver Pedido</a>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="alert alert-info mt-3" th:if="${r.estatus == T(isa.restaurante.modelo.EstatusReserva).CONFIRMADA}">
+          Esta reserva está confirmada. Puedes generar o asociar pedidos desde la sección de Pedidos.
+        </div>
+        <div class="alert alert-secondary mt-3" th:if="${r.estatus == T(isa.restaurante.modelo.EstatusReserva).PENDIENTE}">
+          La reserva está pendiente de confirmación.
+        </div>
+        <div class="alert alert-danger mt-3" th:if="${r.estatus == T(isa.restaurante.modelo.EstatusReserva).CANCELADA}">
+          La reserva fue cancelada.
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div th:replace="fragments/fhooter :: fhooter"></div>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+

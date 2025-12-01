@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" 
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security" 
+      lang="es">
+<body>
+  <nav th:fragment="navibar"
+       class="navbar navbar-expand-lg navbar-dark shadow-sm"
+       style="background-color: #8B0000;">
+
+    <div class="container">
+      <a class="navbar-brand fw-bold text-uppercase" th:href="@{/}" style="letter-spacing: 1px;">
+          <i class="fas fa-utensils me-2"></i>Parrilla ISA
+      </a>
+
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown"
+              aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarNavDropdown">
+        <ul class="navbar-nav ms-auto align-items-center">
+          
+          <li class="nav-item"><a class="nav-link text-white mx-2" th:href="@{/}">Inicio</a></li>
+          <li class="nav-item"><a class="nav-link text-white mx-2" th:href="@{/menu}">Menú</a></li>
+
+          <li class="nav-item dropdown" sec:authorize="hasAnyRole('ADMIN', 'SUPERVISOR', 'CAJERO')">
+            <a class="nav-link dropdown-toggle text-white fw-bold mx-2" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="fas fa-cogs me-1"></i> Admin
+            </a>
+            <ul class="dropdown-menu shadow border-0" aria-labelledby="adminDropdown">
+                
+                <li sec:authorize="hasRole('ADMIN')"><h6 class="dropdown-header text-primary fw-bold">SEGURIDAD</h6></li>
+                <li sec:authorize="hasRole('ADMIN')"><a class="dropdown-item" th:href="@{/usuarios}">Usuarios</a></li>
+                <li sec:authorize="hasRole('ADMIN')"><a class="dropdown-item" th:href="@{/perfiles}">Roles</a></li>
+                <li sec:authorize="hasRole('ADMIN')"><hr class="dropdown-divider"></li>
+                
+                <li><h6 class="dropdown-header text-success fw-bold">GESTIÓN</h6></li>
+                
+                <li sec:authorize="hasAnyRole('ADMIN', 'SUPERVISOR')"><a class="dropdown-item" th:href="@{/admin/productos}">Productos</a></li>
+                <li sec:authorize="hasAnyRole('ADMIN', 'SUPERVISOR')"><a class="dropdown-item" th:href="@{/empleados}">Empleados</a></li>
+                <li sec:authorize="hasAnyRole('ADMIN', 'SUPERVISOR')"><a class="dropdown-item" th:href="@{/mesas}">Mesas</a></li>
+                
+                <li sec:authorize="hasAnyRole('ADMIN', 'CAJERO')"><a class="dropdown-item" th:href="@{/clientes}">Clientes</a></li>
+                <li sec:authorize="hasAnyRole('ADMIN', 'CAJERO')"><a class="dropdown-item" th:href="@{/busquedas/clientes}">Reportes SQL</a></li>
+            </ul>
+          </li>
+          
+          <li class="nav-item dropdown" sec:authorize="isAuthenticated()">
+            <a class="nav-link dropdown-toggle text-white fw-bold mx-2" href="#" id="servicesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="fas fa-concierge-bell me-1"></i> Servicios
+            </a>
+            <ul class="dropdown-menu shadow border-0" aria-labelledby="servicesDropdown">
+                
+                <li sec:authorize="hasAnyRole('ADMIN', 'CAJERO', 'MESERO', 'COCINERO')">
+                    <a class="dropdown-item" th:href="@{/pedidos}">
+                        <i class="fas fa-clipboard-list me-2 text-muted"></i>Pedidos
+                    </a>
+                </li>
+                
+                <li sec:authorize="hasAnyRole('ADMIN', 'CLIENTE', 'CAJERO')">
+                    <a class="dropdown-item" th:href="@{/reservas}">
+                        <i class="fas fa-calendar-alt me-2 text-muted"></i>Reservas
+                    </a>
+                </li>
+                
+                <li><hr class="dropdown-divider"></li>
+                
+                <li sec:authorize="hasRole('CLIENTE')">
+                    <a class="dropdown-item" th:href="@{/clientes/completar-perfil}">Mi Perfil (Cliente)</a>
+                </li>
+                <li sec:authorize="hasAnyRole('ADMIN', 'SUPERVISOR', 'CAJERO', 'MESERO', 'COCINERO')">
+                     <a class="dropdown-item" th:href="@{/empleados/completar-perfil}">Mi Perfil (Empleado)</a>
+                </li>
+            </ul>
+          </li>
+
+          <li class="nav-item ms-lg-3 ps-lg-3 border-start-lg border-secondary d-flex align-items-center mt-3 mt-lg-0">
+              <div sec:authorize="isAuthenticated()" class="d-flex align-items-center bg-dark bg-opacity-25 rounded-pill px-3 py-1">
+                  
+                  <div class="me-2">
+                      <img th:if="${cliente != null and cliente.fotoCliente != null and !cliente.fotoCliente.isEmpty()}"
+                           th:src="${cliente.fotoCliente}"
+                           alt="User" class="rounded-circle border border-light"
+                           width="32" height="32" style="object-fit: cover;">
+
+                      <img th:unless="${cliente != null and cliente.fotoCliente != null and !cliente.fotoCliente.isEmpty()}"
+                           th:src="@{/imagen/user_placeholder.png}"
+                           alt="User" class="rounded-circle border border-light bg-secondary p-1"
+                           width="32" height="32" style="opacity: 0.8;">
+                  </div>
+
+                  <div class="text-end me-2 lh-1">
+                      <div class="text-warning fw-bold" style="font-size: 0.9rem; white-space: nowrap;">
+                           <span th:text="${nombreUsuarioReal != null ? nombreUsuarioReal : #authentication.name}">Usuario</span>
+                      </div>
+                      <div class="text-light opacity-75" style="font-size: 0.7rem; white-space: nowrap;">
+                           <span th:if="${not #lists.isEmpty(#authentication.authorities)}"
+                                 th:text="${#strings.replace(#authentication.authorities[0].authority, 'ROLE_', '')}">
+                             ROL
+                           </span>
+                      </div>
+                  </div>
+                  
+                  <form th:action="@{/logout}" method="post" style="display:inline;">
+                      <button type="submit" class="btn btn-sm btn-danger rounded-circle" title="Cerrar Sesión" style="width: 32px; height: 32px; padding: 0; line-height: 30px;">
+                          <i class="fas fa-power-off"></i>
+                      </button>
+                  </form>
+              </div>
+
+              <a th:href="@{/login}" class="btn btn-outline-light ms-3 rounded-pill px-4" sec:authorize="!isAuthenticated()">
+                  Ingresar
+              </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+</body>
+</html>

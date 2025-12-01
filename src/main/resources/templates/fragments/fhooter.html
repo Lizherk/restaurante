@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="es">
+<head>
+  <link th:href="@{/css/layout.css}" rel="stylesheet">
+</head>
+<body>
+  <footer th:fragment="fhooter" class="footer">
+    <div class="container">
+      <p>© <span th:text="${#dates.createNow().getYear()}">2025</span> Parrilla ISA</p>
+    </div>
+  </footer>
+</body>
+</html>

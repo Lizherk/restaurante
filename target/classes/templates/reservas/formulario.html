@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title th:text="${reserva.id}!=null ? 'Editar reserva' : 'Nueva reserva'">Nueva reserva</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link th:href="@{/css/estilos.css}" rel="stylesheet">
+  <link th:href="@{/css/layout.css}" rel="stylesheet">
+</head>
+<body class="bg-light py-4">
+  <div th:replace="fragments/headher :: headher"></div>
+  <div th:replace="fragments/navibar :: navibar"></div>
+
+  <div class="container mt-3">
+    <div class="card shadow-sm">
+      <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+        <h5 class="mb-0" th:text="${reserva.id}!=null ? 'Editar estatus de reserva' : 'Crear nueva reserva'">Crear reserva</h5>
+        <a th:href="@{/reservas}" class="btn btn-light btn-sm">Volver</a>
+      </div>
+
+      <div class="card-body">
+
+        <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+        <div th:if="${ok}" class="alert alert-success" th:text="${ok}"></div>
+
+        <th:block th:with="isEdit=${reserva.id != null}, isCreate=${reserva.id == null}">
+        
+        <form th:action="@{/reservas/guardar}" th:object="${reserva}" method="post">
+          <input type="hidden" th:field="*{id}"/>
+
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label class="form-label">Fecha</label>
+              <input type="date" 
+                     class="form-control" 
+                     th:field="*{fecha}" 
+                     required 
+                     th:readonly="${isEdit}"
+                     
+                     th:min="${#dates.format(#dates.createToday(), 'yyyy-MM-dd')}">
+              
+              <div class="form-text">Formato: AAAA-MM-DD</div>
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label">Hora</label>
+              <input type="time" class="form-control" th:field="*{hora}" required th:readonly="${isEdit}">
+              <div class="form-text">Ej. 19:00</div>
+            </div>
+
+            <div class="col-md-4" th:if="${isEdit}">
+              <label class="form-label">Estatus</label>
+              <select class="form-select" th:field="*{estatus}" required>
+                <option th:each="e : ${estatusLista}" th:value="${e}" th:text="${e}">PENDIENTE</option>
+              </select>
+              <div class="form-text text-danger">Solo se permite cambiar el estatus aquí.</div>
+            </div>
+            
+            <input type="hidden" th:if="${isCreate}" th:field="*{estatus}" th:value="PENDIENTE"/>
+
+            <div class="col-md-6">
+              <label class="form-label">Cliente</label>
+              <select class="form-select" th:field="*{cliente.id}" required th:disabled="${isEdit}">
+                <option value="" disabled selected>— Selecciona cliente —</option>
+                <option th:each="c : ${clientes}" th:value="${c.id}"
+                        th:text="${(c.nombre?:'') + ' ' + (c.apellido?:'') + ' (#' + c.id + ')'}"></option>
+              </select>
+            </div>
+
+            <div class="col-md-3">
+              <label class="form-label">Mesa</label>
+              <select class="form-select" th:field="*{mesa.id}" required th:disabled="${isEdit}">
+                <option value="" disabled selected>— Selecciona mesa —</option>
+                <option th:each="m : ${mesas}" th:value="${m.id}"
+                        th:text="${'Mesa ' + m.id + ' (' + m.capacidad + ' pax, ' + (m.ubicacion?:'') + ')'}"></option>
+              </select>
+            </div>
+            
+            <div class="col-md-3" th:if="${isEdit}">
+              <label class="form-label">Empleados Asignados</label>
+              <select class="form-select" name="empleadosIds" multiple size="4">
+                <option th:each="e : ${empleados}" 
+                        th:value="${e.id}"
+                        th:text="${e.nombreCompleto + ' (' + e.puesto + ')'}"
+                        th:selected="${reserva.atenciones.![empleado.id].contains(e.id)}">
+                </option>
+              </select>
+              <div class="form-text">Mantén Ctrl o Cmd presionado para seleccionar varios.</div>
+            </div>
+
+          </div>
+
+          <div class="alert alert-secondary mt-3 small">
+            <strong>Nota:</strong> No se permiten reservas con la <em>misma mesa</em> en la <em>misma fecha y hora</em>. Si ocurre, verás un mensaje de error arriba.
+          </div>
+
+          <div class="mt-4 d-flex gap-2">
+            <a class="btn btn-secondary" th:href="@{/reservas}">Cancelar</a>
+            <button class="btn btn-primary" type="submit" 
+                    th:text="${isEdit ? 'Actualizar Estatus y Asignaciones' : 'Crear Reserva'}">Guardar</button>
+          </div>
+        </form>
+        
+        </th:block>
+      </div>
+    </div>
+  </div>
+
+  <div th:replace="fragments/fhooter :: fhooter"></div>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

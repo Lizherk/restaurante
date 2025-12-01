@@ -1,0 +1,45 @@
+services:
+  # SERVICIO 1: TU APLICACIÓN JAVA
+  app-restaurante:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      # Conexión a la BD dentro de Docker
+      - DB_URL=jdbc:mysql://mysqldb:3306/restaurantejpa?serverTimezone=UTC&useSSL=false&allowPublicKeyRetrieval=true
+      - DB_USER=root
+      - DB_PASSWORD=root
+      # Tus claves de Cloudinary (Ya configuradas)
+      - cloudinary.cloud_name=dwgz3e6xr
+      - cloudinary.api_key=676149296364734
+      - cloudinary.api_secret=rb8UzAnPGtE9z0QO20NKQC_DXA8
+    
+    # 🚨 CAMBIO CRÍTICO 1: Espera a que la BD esté saludable
+    depends_on:
+      mysqldb:
+        condition: service_healthy # Espera la condición de salud
+    
+    # Añadimos un pequeño delay inicial para asegurar que MySQL gane la carrera
+    restart: always
+
+  # SERVICIO 2: BASE DE DATOS MYSQL (DENTRO DEL CONTENEDOR)
+  mysqldb:
+    image: mysql:8.0
+    container_name: restaurante-db
+    ports:
+      - "3307:3306" 
+    environment:
+      - MYSQL_DATABASE=restaurantejpa
+      - MYSQL_ROOT_PASSWORD=root
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+    # 🚨 CAMBIO CRÍTICO 2: Definimos cómo saber si MySQL está listo
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  mysql_data:

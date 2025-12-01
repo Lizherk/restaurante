@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="es">
+<head>
+    <meta charset="UTF-8"><title>Detalle de Usuario</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link th:href="@{/css/estilos.css}" rel="stylesheet">
+    <link th:href="@{/css/layout.css}" rel="stylesheet">
+</head>
+<body class="bg-light py-4">
+    <div th:replace="fragments/headher :: headher"></div>
+    <div th:replace="fragments/navibar :: navibar"></div>
+
+    <div class="container my-5" th:with="u=${usuario}">
+        <div class="card shadow-sm">
+            <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Detalle del Usuario #<span th:text="${u.id}">1</span></h5>
+                <div class="d-flex gap-2">
+                    <a th:href="@{/usuarios}" class="btn btn-light btn-sm">← Volver a la Lista</a>
+                    <a th:href="@{/usuarios/editar/{id}(id=${u.id})}" class="btn btn-warning btn-sm">Editar</a>
+                </div>
+            </div>
+
+            <div class="card-body">
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <p class="mb-1 text-muted">Nombre Completo</p>
+                        <div class="fw-semibold" th:text="${u.nombre}">Nombre Apellido</div>
+                    </div>
+                    <div class="col-md-6">
+                        <p class="mb-1 text-muted">Username</p>
+                        <div class="fw-semibold" th:text="${u.username}">usuario.test</div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <p class="mb-1 text-muted">Email</p>
+                        <div class="fw-semibold" th:text="${u.email}">test@restaurante.com</div>
+                    </div>
+                    <div class="col-md-3">
+                        <p class="mb-1 text-muted">Estatus</p>
+                        <td>
+                            <span class="badge" 
+                                  th:classappend="${u.estatus == 1 ? 'bg-success' : 'bg-danger'}"
+                                  th:text="${u.estatus == 1 ? 'Activo' : 'Inactivo'}">Activo</span>
+                        </td>
+                    </div>
+                    <div class="col-md-3">
+                        <p class="mb-1 text-muted">Fecha de Registro</p>
+                        <div th:text="${u.fechaRegistro}">2025-11-05</div>
+                    </div>
+
+                    <div class="col-12">
+                        <hr/>
+                        <p class="mb-2 text-muted">Perfiles / Roles Asignados</p>
+                        <div th:if="${#lists.isEmpty(u.perfiles)}" class="text-danger">
+                            Este usuario no tiene perfiles asignados.
+                        </div>
+                        <div th:unless="${#lists.isEmpty(u.perfiles)}" class="d-flex gap-2">
+                            <span th:each="up : ${u.perfiles}" 
+                                  th:text="${up.perfil.perfil}" 
+                                  class="badge bg-primary fs-6">ADMINISTRADOR</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card-footer bg-light">
+                <a th:href="@{/usuarios/eliminar/{id}(id=${u.id})}"
+                   class="btn btn-danger btn-sm"
+                   onclick="return confirm('¿Está seguro de eliminar a este usuario?');">Eliminar Usuario</a>
+            </div>
+        </div>
+    </div>
+
+    <div th:replace="fragments/fhooter :: fhooter"></div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

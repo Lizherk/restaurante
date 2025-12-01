@@ -1,0 +1,82 @@
+
+
+:root{
+  --color-primario: #8B0000;
+  --color-primario-hover: #A52A2A;
+  --color-secundario: #2E8B57;
+  --color-acento: #FFA500;
+  --color-fondo: #F5F5F5;
+  --color-texto: #333333;
+}
+
+html, body{
+  background: var(--color-fondo);
+  color: var(--color-texto);
+}
+.navbar-custom{
+  background: var(--color-primario);
+}
+.navbar-custom .navbar-brand,
+.navbar-custom .nav-link{
+  color: #fff;
+}
+
+.btn-primary{
+  background: var(--color-primario);
+  border-color: var(--color-primario);
+}
+.btn-primary:hover{
+  background: var(--color-primario-hover);
+  border-color: var(--color-primario-hover);
+}
+.btn-success{
+  background: var(--color-secundario);
+  border-color: var(--color-secundario);
+}
+
+/* Tarjetas */
+.card.soft{
+  border: 0;
+  border-radius: 16px;
+  box-shadow: 0 10px 24px rgba(0,0,0,.08);
+}
+
+/* Tabla */
+.table thead th{
+  vertical-align: middle;
+}
+.table thead{
+  background: var(--color-primario);
+  color: #fff;
+}
+.table-hover tbody tr:hover{
+  background: rgba(0,0,0,.025);
+}
+
+/* Badges */
+.badge-soft{
+  background: #e7f1ff;
+  color: #0d6efd;
+  border-radius: 999px;
+  padding: .35rem .6rem;
+  font-weight: 600;
+}
+
+.avatar{
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 1px solid #ddd;
+}
+.avatar-lg{
+  width: 140px;
+  height: 140px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 4px solid #fff;
+  box-shadow: 0 6px 16px rgba(0,0,0,.12);
+}
+
+/* Utilidades */
+.text-muted-600{ color: #6c757d; }
